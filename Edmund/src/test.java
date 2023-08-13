@@ -13,7 +13,10 @@ public class test {
 //                .toArray();
 //
 //        System.out.println(Arrays.toString(X));
-        f(1, 2, 3);
+//        f(1, 2, 3);
+    }
+
+    private static void f(int i, int i1, int i2) {
     }
 
 
