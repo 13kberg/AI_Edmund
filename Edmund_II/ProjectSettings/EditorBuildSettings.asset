@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: f9ae8a51b4db25c4c9af2f765f22c056
+  - enabled: 1
+    path: Assets/Scenes/Misc/DungeonGeneratorGM.unity
+    guid: 21d63cb70b4af9d43924d5f130f0c3be
+  - enabled: 1
+    path: Assets/Scenes/DungeonGeneratorPlayer.unity
+    guid: d89d9e1461315c245af004c6b502950d
+  m_configObjects: {}
