@@ -1,6 +1,6 @@
-w# AI_Edmund
-A collection of my AI's 
-
+AI_Edmund
+A collection of my AI's all conventiently called Edmund (+Enoch)
+ 
 
 ## Edmund
 An AI that plays TikTakToe on a 5x5 Grind.
@@ -10,10 +10,10 @@ An AI that plays TikTakToe on a 5x5 Grind.
 - POSSIBLE window pop up
 
 ## Enoch	
+[Zombie Time Demo](https://www.youtube.com/watch?v=vZiypPDDFWk&t=3s&ab_channel=f%C3%A5lskN%C3%B8rsk)
 The 'AI' are the Zombies.
 It is a Zombie first person shooter. It's very "scary"
 *Given up on this*
-
 
 ## Edmund_II
 An AI in a Unity game called Sonder that soft diagnoses your attachment style
