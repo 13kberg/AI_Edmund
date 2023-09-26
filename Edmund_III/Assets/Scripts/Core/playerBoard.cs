@@ -11,14 +11,13 @@ public class playerBoard : MonoBehaviour
     public int m_gridWith = 10;
 
     public int m_header = 8;
-    
+
     //GAME PIECES VARIABLES 
     Transform[,] m_grid;
 
     private void Awake()
     {
         m_grid = new Transform[m_gridWith, m_gridHieght];
-        
     }
 
     // Start is called before the first frame update
@@ -31,12 +30,13 @@ public class playerBoard : MonoBehaviour
     void Update()
     {
     }
+
     //DEFUALT-PRIVATE 
     void DrawEmptyCell()
     {
-        if (m_gridEmptySprite !=null)
+        if (m_gridEmptySprite != null)
         {
-            for (int y = 0; y < m_gridHieght-m_header; y++)
+            for (int y = 0; y < m_gridHieght - m_header; y++)
             {
                 for (int x = 0; x < m_gridWith; x++)
                 {
