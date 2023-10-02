@@ -4,15 +4,46 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public Shape[] m_allShapes;
+
+    Shape getRanShape()
+    {
+        int i = Random.Range(0, m_allShapes.Length);
+        if (m_allShapes[i])
+        {
+            return m_allShapes[i];
+        }
+        else
+        {
+            Debug.Log("WARNING: INVALID SHAPE IN SPAWNER");
+            return null;
+        }
+    }
+
+    public Shape spawnShape()
+    {
+        Shape shape = null;
+
+        shape = Instantiate(getRanShape(), transform.position, Quaternion.identity) as Shape;
+        if (shape)
+        {
+            return shape;
+        }
+        else
+        {
+            Debug.Log("WARNING: INVALID SHAPE IN SPAWNER");
+            return null;
+        }
+    }
+
+
+// Start is called before the first frame update
     void Start()
     {
-        
     }
 
     // Update is called once per frame
     void Update()
     {
-        
     }
 }
