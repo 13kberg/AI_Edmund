@@ -6,6 +6,8 @@ TagManager:
   tags:
   - BoardPlayer
   - SpawnerPlayer
+  - BoardAi
+  - SpawnerAi
   layers:
   - Default
   - TransparentFX

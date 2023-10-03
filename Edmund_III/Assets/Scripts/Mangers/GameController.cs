@@ -5,30 +5,34 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     //HUMAN PLAYER
-    playerBoard m_gameBoardPlayer;
+    Board m_gameBoardPlayer;
     Spawner m_spawnerPlayer;
     Shape m_activeShapePlayer;
-    
+    float m_dropIntervalPlayer = 0.25f;
+    float m_timeToDropPlayer;
+
     //AI
-    playerBoard m_gameBoardAi;
-    Spawner m_spawnerAi;
-    Shape m_activeShapeAi;
+    // playerBoard m_gameBoardAi;
+    // Spawner m_spawnerAi;
+    // Shape m_activeShapeAi;
+    // float m_dropIntervalAi = 0.25f;
+    // float m_timeToDropAI;
 
     // Start is called before the first frame update
     void Start()
     {
         //PLAYER
-        m_gameBoardPlayer = GameObject.FindWithTag("BoardPlayer").GetComponent<playerBoard>();
+        m_gameBoardPlayer = GameObject.FindWithTag("BoardPlayer").GetComponent<Board>();
         m_spawnerPlayer = GameObject.FindWithTag("SpawnerPlayer").GetComponent<Spawner>();
 
-        
+
         if (m_spawnerPlayer)
         {
             if (m_activeShapePlayer == null)
             {
                 m_activeShapePlayer = m_spawnerPlayer.spawnShape();
             }
-            
+
             m_spawnerPlayer.transform.position = Vectorf.Round(m_spawnerPlayer.transform.position);
         }
 
@@ -42,7 +46,7 @@ public class GameController : MonoBehaviour
                 Debug.Log("WARNING: NO PLAYER SPAWNER IS DEFINED");
             }
         }
-        
+
         //AI
     }
 
@@ -55,13 +59,28 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        if (m_activeShapePlayer)
+        if (Time.time > m_timeToDropPlayer)
         {
-            m_activeShapePlayer.moveDown();
+            m_timeToDropPlayer = Time.time + m_dropIntervalPlayer;
+            if (m_activeShapePlayer)
+            {
+                m_activeShapePlayer.moveDown();
+                if (!m_gameBoardPlayer.IsValidPosition(m_activeShapePlayer))
+                {
+                    //SHAPE LANDING
+                    m_activeShapePlayer.moveUp();
+                    m_gameBoardPlayer.StoreShapeInGrid(m_activeShapePlayer);
+
+                    if (m_spawnerPlayer)
+                    {
+                        m_activeShapePlayer = m_spawnerPlayer.spawnShape();
+                    }
+                    
+                }
+            }
         }
-        
     }
 }
 
 /*TODO:
- - REMAKE METHODS FOR AI BOARD/SPAWNER*/ 
+ - REMAKE METHODS FOR AI BOARD/SPAWNER*/
