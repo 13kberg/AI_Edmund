@@ -5,11 +5,24 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     //HUMAN PLAYER
-    Board m_gameBoardPlayer;
-    Spawner m_spawnerPlayer;
-    Shape m_activeShapePlayer;
-    float m_dropIntervalPlayer = 0.25f;
-    float m_timeToDropPlayer;
+    Board m_gameBoard;
+    Spawner m_spawner;
+    Shape m_activeShape;
+
+    float m_dropInterval = 0.9f;
+    float m_timeToDrop;
+
+
+    private float m_timeToNextKeyLeftRight;
+    [Range(0.02f, 1f)] public float m_keyRepeatRateLeftRight = 0.15f;
+    float m_timeToNextKeyDown;
+    [Range(0.01f, 1f)] public float m_keyRepeatRateDown = 0.1f;
+    float m_timeToNextKeyRotate;
+    [Range(0.02f, 1f)] public float m_keyRepeatRateRotate = 0.25f;
+
+
+    public GameObject m_gameOverPanel;
+    bool m_gameOver = false;
 
     //AI
     // playerBoard m_gameBoardAi;
@@ -19,34 +32,44 @@ public class GameController : MonoBehaviour
     // float m_timeToDropAI;
 
     // Start is called before the first frame update
+
+
     void Start()
     {
         //PLAYER
-        m_gameBoardPlayer = GameObject.FindWithTag("BoardPlayer").GetComponent<Board>();
-        m_spawnerPlayer = GameObject.FindWithTag("SpawnerPlayer").GetComponent<Spawner>();
+        m_timeToNextKeyLeftRight = Time.time;
+        m_timeToNextKeyDown = Time.time;
+        m_timeToNextKeyRotate = Time.time;
 
+        m_gameBoard = GameObject.FindWithTag("BoardPlayer").GetComponent<Board>();
+        m_spawner = GameObject.FindWithTag("SpawnerPlayer").GetComponent<Spawner>();
 
-        if (m_spawnerPlayer)
-        {
-            if (m_activeShapePlayer == null)
-            {
-                m_activeShapePlayer = m_spawnerPlayer.spawnShape();
-            }
-
-            m_spawnerPlayer.transform.position = Vectorf.Round(m_spawnerPlayer.transform.position);
-        }
 
         //SAFETY CHECKS 
-        if (!m_gameBoardPlayer)
+        if (!m_gameBoard)
         {
             Debug.Log("WARNING: NO PLAYER GAME BOARD IS DEFINED");
 
-            if (!m_spawnerPlayer)
+            if (!m_spawner)
             {
                 Debug.Log("WARNING: NO PLAYER SPAWNER IS DEFINED");
             }
         }
+        else
+        {
+            if (m_activeShape == null)
+            {
+                m_activeShape = m_spawner.spawnShape();
+            }
 
+            m_spawner.transform.position = Vectorf.Round(m_spawner.transform.position);
+        }
+
+        if (m_gameOverPanel)
+        {
+            m_gameOverPanel.SetActive(false);
+        }
+        
         //AI
     }
 
@@ -54,31 +77,106 @@ public class GameController : MonoBehaviour
     void Update()
     {
         //IF NO GAMEBOARD OR SPAWNER (EITHER AI OR USER) DONT PLAY GAME
-        if (!m_gameBoardPlayer || !m_spawnerPlayer) //|| !m_spawnerAi || ! m_gameBoardAi)
+        if (!m_gameBoard || !m_spawner || !m_activeShape || m_gameOver) //|| !m_spawnerAi || ! m_gameBoardAi)
         {
             return;
         }
 
-        if (Time.time > m_timeToDropPlayer)
-        {
-            m_timeToDropPlayer = Time.time + m_dropIntervalPlayer;
-            if (m_activeShapePlayer)
-            {
-                m_activeShapePlayer.moveDown();
-                if (!m_gameBoardPlayer.IsValidPosition(m_activeShapePlayer))
-                {
-                    //SHAPE LANDING
-                    m_activeShapePlayer.moveUp();
-                    m_gameBoardPlayer.StoreShapeInGrid(m_activeShapePlayer);
+        PlayerInput();
+    }
 
-                    if (m_spawnerPlayer)
-                    {
-                        m_activeShapePlayer = m_spawnerPlayer.spawnShape();
-                    }
-                    
+    void PlayerInput()
+    {
+        //USER
+        //RIGHTKEY
+        if (Input.GetButton("MoveRight") && Time.time > m_timeToNextKeyLeftRight || Input.GetButtonDown("MoveRight"))
+        {
+            m_activeShape.moveRight();
+            m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
+            if (!m_gameBoard.IsValidPosition(m_activeShape))
+            {
+                m_activeShape.moveLeft();
+                // Debug.Log("Hit Right Boundary ");
+            }
+        } //LEFT KEY
+        else if (Input.GetButton("MoveLeft") && Time.time > m_timeToNextKeyLeftRight || Input.GetButtonDown("MoveLeft"))
+        {
+            m_activeShape.moveLeft();
+            m_timeToNextKeyLeftRight = Time.time + m_keyRepeatRateLeftRight;
+            if (!m_gameBoard.IsValidPosition(m_activeShape))
+            {
+                m_activeShape.moveRight();
+            }
+        } //ROTATE CLOCKWISE
+        else if (Input.GetButton("RotateC") && Time.time > m_timeToNextKeyRotate ||
+                 Input.GetButton("RotateC1") && Time.time > m_timeToNextKeyRotate)
+        {
+            m_activeShape.rotateRight();
+            m_timeToNextKeyRotate = Time.time + m_keyRepeatRateRotate;
+            if (!m_gameBoard.IsValidPosition(m_activeShape))
+            {
+                m_activeShape.rotateLeft();
+            }
+        } //ROTATE COUNTERCLOCKWISE
+        else if (Input.GetButton("RotateCC") && Time.time > m_timeToNextKeyRotate ||
+                 Input.GetButton("RotateCC1") && Time.time > m_timeToNextKeyRotate)
+        {
+            m_activeShape.rotateLeft();
+            m_timeToNextKeyRotate = Time.time + m_keyRepeatRateRotate;
+            if (!m_gameBoard.IsValidPosition(m_activeShape))
+            {
+                m_activeShape.rotateRight();
+            }
+        }
+        else if (Input.GetButton("MoveDown") && (Time.time > m_timeToNextKeyDown) || (Time.time > m_timeToDrop))
+        {
+            m_timeToDrop = Time.time + m_dropInterval;
+            m_timeToNextKeyDown = Time.time + m_keyRepeatRateDown;
+
+            m_activeShape.moveDown();
+            if (!m_gameBoard.IsValidPosition(m_activeShape))
+            {
+                if (m_gameBoard.IsOverLimit(m_activeShape))
+                {
+                    GameOver();
+                }
+                else
+                {
+                    LandShape();
                 }
             }
         }
+    }
+
+    void GameOver()
+    {
+        m_activeShape.moveUp();
+
+        if (m_gameOverPanel)
+        {
+            m_gameOverPanel.SetActive(true);
+        }
+
+        m_gameOver = true;
+    }
+
+    public void Restart()
+    {
+        //Debug.Log("Restart");
+        Application.LoadLevel(Application.loadedLevel);
+    }
+
+    void LandShape()
+    {
+        m_timeToNextKeyLeftRight = Time.time;
+        m_timeToNextKeyDown = Time.time;
+        m_timeToNextKeyRotate = Time.time;
+
+        m_activeShape.moveUp();
+        m_gameBoard.StoreShapeInGrid(m_activeShape);
+        m_activeShape = m_spawner.spawnShape();
+
+        m_gameBoard.ClearAllRows();
     }
 }
 
