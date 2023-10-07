@@ -14,6 +14,7 @@ public class Board : MonoBehaviour
 
     //GAME PIECES VARIABLES 
     Transform[,] m_grid;
+    public int m_completedRows = 0;
 
     private void Awake()
     {
@@ -155,6 +156,7 @@ public class Board : MonoBehaviour
         {
             if (IsComplete(y))
             {
+                m_completedRows++;
                 ClearRow(y);
 
                 ShiftRows(y + 1);

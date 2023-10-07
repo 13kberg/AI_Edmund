@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
@@ -11,8 +12,6 @@ public class GameController : MonoBehaviour
 
     float m_dropInterval = 0.9f;
     float m_timeToDrop;
-
-
     private float m_timeToNextKeyLeftRight;
     [Range(0.02f, 1f)] public float m_keyRepeatRateLeftRight = 0.15f;
     float m_timeToNextKeyDown;
@@ -20,9 +19,12 @@ public class GameController : MonoBehaviour
     float m_timeToNextKeyRotate;
     [Range(0.02f, 1f)] public float m_keyRepeatRateRotate = 0.25f;
 
-
     public GameObject m_gameOverPanel;
     bool m_gameOver = false;
+
+    SoundController m_soundController;
+
+    ScoreController m_scoreController;
 
     //AI
     // playerBoard m_gameBoardAi;
@@ -43,17 +45,29 @@ public class GameController : MonoBehaviour
 
         m_gameBoard = GameObject.FindWithTag("BoardPlayer").GetComponent<Board>();
         m_spawner = GameObject.FindWithTag("SpawnerPlayer").GetComponent<Spawner>();
+        m_soundController = GameObject.FindObjectOfType<SoundController>();
+        m_scoreController = GameObject.FindObjectOfType<ScoreController>();
 
 
         //SAFETY CHECKS 
         if (!m_gameBoard)
         {
             Debug.Log("WARNING: NO PLAYER GAME BOARD IS DEFINED");
+        }
 
-            if (!m_spawner)
-            {
-                Debug.Log("WARNING: NO PLAYER SPAWNER IS DEFINED");
-            }
+        if (!m_soundController)
+        {
+            Debug.Log("WARNING: NO SOUND CONTROLLER IS DEFINED");
+        }
+
+        if (!m_scoreController)
+        {
+            Debug.Log("WARNING: NO SCORE CONTOLLER IS DEFINED");
+        }
+
+        if (!m_spawner)
+        {
+            Debug.Log("WARNING: NO PLAYER SPAWNER IS DEFINED");
         }
         else
         {
@@ -69,7 +83,7 @@ public class GameController : MonoBehaviour
         {
             m_gameOverPanel.SetActive(false);
         }
-        
+
         //AI
     }
 
@@ -77,7 +91,8 @@ public class GameController : MonoBehaviour
     void Update()
     {
         //IF NO GAMEBOARD OR SPAWNER (EITHER AI OR USER) DONT PLAY GAME
-        if (!m_gameBoard || !m_spawner || !m_activeShape || m_gameOver) //|| !m_spawnerAi || ! m_gameBoardAi)
+        if (!m_gameBoard || !m_spawner || !m_activeShape || m_gameOver || !m_soundController ||
+            !m_scoreController) //|| !m_spawnerAi || ! m_gameBoardAi)
         {
             return;
         }
@@ -98,6 +113,10 @@ public class GameController : MonoBehaviour
                 m_activeShape.moveLeft();
                 // Debug.Log("Hit Right Boundary ");
             }
+            else
+            {
+                PlaySound(m_soundController.m_moved, 0.5f);
+            }
         } //LEFT KEY
         else if (Input.GetButton("MoveLeft") && Time.time > m_timeToNextKeyLeftRight || Input.GetButtonDown("MoveLeft"))
         {
@@ -106,6 +125,10 @@ public class GameController : MonoBehaviour
             if (!m_gameBoard.IsValidPosition(m_activeShape))
             {
                 m_activeShape.moveRight();
+            }
+            else
+            {
+                PlaySound(m_soundController.m_moved, 0.5f);
             }
         } //ROTATE CLOCKWISE
         else if (Input.GetButton("RotateC") && Time.time > m_timeToNextKeyRotate ||
@@ -117,6 +140,10 @@ public class GameController : MonoBehaviour
             {
                 m_activeShape.rotateLeft();
             }
+            else
+            {
+                PlaySound(m_soundController.m_rotated, 0.5f);
+            }
         } //ROTATE COUNTERCLOCKWISE
         else if (Input.GetButton("RotateCC") && Time.time > m_timeToNextKeyRotate ||
                  Input.GetButton("RotateCC1") && Time.time > m_timeToNextKeyRotate)
@@ -126,6 +153,10 @@ public class GameController : MonoBehaviour
             if (!m_gameBoard.IsValidPosition(m_activeShape))
             {
                 m_activeShape.rotateRight();
+            }
+            else
+            {
+                PlaySound(m_soundController.m_rotated, 0.5f);
             }
         }
         else if (Input.GetButton("MoveDown") && (Time.time > m_timeToNextKeyDown) || (Time.time > m_timeToDrop))
@@ -157,17 +188,20 @@ public class GameController : MonoBehaviour
             m_gameOverPanel.SetActive(true);
         }
 
+        PlaySound(m_soundController.m_gameOver, 5f);
         m_gameOver = true;
     }
 
     public void Restart()
     {
         //Debug.Log("Restart");
-        Application.LoadLevel(Application.loadedLevel);
+        //Application.LoadLevel(Application.loadedLevel);
+        SceneManager.LoadScene("PlayerTetris");
     }
 
     void LandShape()
     {
+        //ADD SCORE METHOD
         m_timeToNextKeyLeftRight = Time.time;
         m_timeToNextKeyDown = Time.time;
         m_timeToNextKeyRotate = Time.time;
@@ -177,6 +211,25 @@ public class GameController : MonoBehaviour
         m_activeShape = m_spawner.spawnShape();
 
         m_gameBoard.ClearAllRows();
+
+        PlaySound(m_soundController.m_landed);
+        
+        
+        //WHY CONTINUSLY ADD THE SCORE
+        if (m_gameBoard.m_completedRows > 0)
+        {
+            m_scoreController.ScoreLines(m_gameBoard.m_completedRows);
+            PlaySound(m_soundController.m_lineCleared);
+        }
+    }
+
+    void PlaySound(AudioClip clip, float volMultiplier = 1.0f)
+    {
+        if (m_soundController.m_fxEnabled && clip)
+        {
+            AudioSource.PlayClipAtPoint(clip, Camera.main.transform.position,
+                Mathf.Clamp(m_soundController.m_fxVolume * volMultiplier, 0.05f, 1f));
+        }
     }
 }
 
