@@ -24,6 +24,10 @@ public class SoundController : MonoBehaviour
     public AudioSource m_bgMusicSouce; 
     AudioClip m_randomMusicClip;    
     
+    //ICON TOGGLE
+    public IconToggle m_musicIconToggle;
+    public IconToggle m_fxIconToggle;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -41,11 +45,21 @@ public class SoundController : MonoBehaviour
     {
         m_musicEnabled = !m_musicEnabled;
         UpdateMusic();
+        
+        if (m_musicIconToggle)
+        {
+            m_musicIconToggle.ToggleIcon(m_musicEnabled);
+        }
     }
 
     public void ToggleFX()
     {
         m_fxEnabled = !m_fxEnabled;
+
+        if (m_fxIconToggle)
+        {
+            m_fxIconToggle.ToggleIcon(m_fxEnabled);
+        }
 
     }
     

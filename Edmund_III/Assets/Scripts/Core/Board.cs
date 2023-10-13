@@ -152,6 +152,7 @@ public class Board : MonoBehaviour
 
     public void ClearAllRows()
     {
+        m_completedRows = 0;
         for (int y = 0; y < m_gridHieght; ++y)
         {
             if (IsComplete(y))

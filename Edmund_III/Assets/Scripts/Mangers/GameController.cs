@@ -11,6 +11,8 @@ public class GameController : MonoBehaviour
     Shape m_activeShape;
 
     float m_dropInterval = 0.9f;
+    float m_dropIntervalModded;
+    
     float m_timeToDrop;
     private float m_timeToNextKeyLeftRight;
     [Range(0.02f, 1f)] public float m_keyRepeatRateLeftRight = 0.15f;
@@ -25,6 +27,8 @@ public class GameController : MonoBehaviour
     SoundController m_soundController;
 
     ScoreController m_scoreController;
+
+    public bool m_isPaused;
 
     //AI
     // playerBoard m_gameBoardAi;
@@ -201,7 +205,6 @@ public class GameController : MonoBehaviour
 
     void LandShape()
     {
-        //ADD SCORE METHOD
         m_timeToNextKeyLeftRight = Time.time;
         m_timeToNextKeyDown = Time.time;
         m_timeToNextKeyRotate = Time.time;
@@ -216,10 +219,24 @@ public class GameController : MonoBehaviour
         
         
         //WHY CONTINUSLY ADD THE SCORE
+        // if (m_gameBoard.m_completedRows > 0)
+        // {
+        //     m_scoreController.ScoreLines(m_gameBoard.m_completedRows);
+        //     PlaySound(m_soundController.m_lineCleared);
+        //     
+        // }
+        
         if (m_gameBoard.m_completedRows > 0)
         {
             m_scoreController.ScoreLines(m_gameBoard.m_completedRows);
-            PlaySound(m_soundController.m_lineCleared);
+
+            if (m_scoreController.didLevelUp)
+            {
+                m_dropIntervalModded = Mathf.Clamp(m_dropInterval - ((float)m_scoreController.m_level * 0.05f), 0.05f, 1f);
+                PlaySound(m_soundController.m_levelUp);
+            }
+
+            PlaySound (m_soundController.m_lineCleared);
         }
     }
 
