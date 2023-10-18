@@ -1968,6 +1968,7 @@ MonoBehaviour:
   m_keyRepeatRateDown: 0.25
   m_keyRepeatRateRotate: 0.25
   m_gameOverPanel: {fileID: 600921780}
+  m_isPaused: 0
 --- !u!1 &910367728
 GameObject:
   m_ObjectHideFlags: 0
@@ -2060,7 +2061,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &984542782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2461,7 +2462,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1422289505
 MonoBehaviour:
   m_ObjectHideFlags: 0
